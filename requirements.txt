@@ -1,0 +1,25 @@
+# Core ML & math
+torch
+torchvision
+scikit-learn
+pandas
+numpy
+tqdm
+
+# Visualization
+matplotlib
+plotly
+
+# Dimensionality reduction
+umap-learn
+
+# Image processing
+opencv-python
+
+# Indexing / similarity search
+# For macOS (CPU only):
+faiss-cpu
+# For Linux (GPU-accelerated):
+faiss-gpu
+
+
