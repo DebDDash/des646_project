@@ -233,6 +233,57 @@ def visualize_outliers(reduced_emb, outlier_scores, threshold=0.95):
     return fig
 
 
+def plot_embedding_variance(embeddings):
+    """Bar chart of variance explained by top PCA components."""
+    pca = PCA(n_components=min(30, embeddings.shape[1]))
+    pca.fit(embeddings)
+    var_ratio = pca.explained_variance_ratio_
+    fig = go.Figure(go.Bar(x=np.arange(1, len(var_ratio)+1), y=var_ratio))
+    fig.update_layout(
+        title="Variance Explained by PCA Components",
+        xaxis_title="Component #",
+        yaxis_title="Explained Variance Ratio",
+        template="plotly_white"
+    )
+    return fig
+
+def plot_sensitive_bias(embeddings, sensitive_attr, labels=None):
+    """Compare embedding distributions between sensitive groups."""
+    reduced = reduce_embeddings(embeddings, method="pca", n_components=2)
+    df = pd.DataFrame(reduced, columns=["x","y"])
+    df["group"] = sensitive_attr
+    if labels is not None:
+        df["label"] = labels
+    fig = px.scatter(
+        df, x="x", y="y", color="group",
+        title="Embedding Bias Across Sensitive Groups",
+        hover_data=["label"] if labels is not None else None,
+        opacity=0.8
+    )
+    fig.update_layout(template="plotly_white")
+    return fig
+
+def plot_class_balance_radar(labels):
+    """Radar chart of class counts."""
+    counts = pd.Series(labels).value_counts()
+    categories = list(counts.index)
+    values = counts.values.tolist()
+    values += values[:1]  # close the loop
+    fig = go.Figure()
+    fig.add_trace(go.Scatterpolar(r=values, theta=categories + [categories[0]],
+                                  fill='toself', name='Class Count'))
+    fig.update_layout(polar=dict(radialaxis=dict(visible=True)), showlegend=False,
+                      title="Class Balance Radar Plot")
+    return fig
+
+def plot_embedding_correlation(embeddings, sensitive_attr):
+    """Correlation heatmap between embedding dims and sensitive attributes."""
+    emb_df = pd.DataFrame(embeddings)
+    emb_df["sensitive"] = sensitive_attr
+    corr = emb_df.corr()
+    fig = go.Figure(data=go.Heatmap(z=corr.values, x=corr.columns, y=corr.columns, colorscale="RdBu"))
+    fig.update_layout(title="Embedding–Sensitive Attribute Correlation Heatmap")
+    return fig
 
 if __name__ == "__main__":
     data = load_embedding_data(".")
