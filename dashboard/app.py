@@ -7,13 +7,13 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from PIL import Image
-from data_utils import visualize as viz
-from embedding import visualize as embviz
 
 # Add parent directory to Python path (so we can import data_utils)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from data_utils.loader import load_dataset, bulk_extract_metadata, summarize_dataset
+from data_utils import visualize as viz
+from embedding import visualize as embviz
 
 st.set_page_config(page_title="Visual Debugger Dashboard", layout="wide")
 
