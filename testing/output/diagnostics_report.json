@@ -1,0 +1,7 @@
+{
+    "type": "outliers",
+    "metrics": {
+        "num_outliers": 50,
+        "mean_knn_score": 12.975387270927431
+    }
+}

@@ -120,26 +120,36 @@ def plot_embedding_scatter(
             df[k] = v
 
     hover_fields = ["id", "label"] if "id" in df and "label" in df else df.columns
-    color_field = "color" if color_by is not None else "label"
+    if color_by is not None and "color" in df.columns:
+        color_field = "color"
+    elif "label" in df.columns:
+        color_field = "label"
+    else:
+        color_field = None
+
 
     if reduced_emb.shape[1] == 3:
         fig = px.scatter_3d(
             df, x="dim1", y="dim2", z="dim3",
-            color=color_field, hover_data=hover_fields,
+            color=color_field if color_field else None,
+            hover_data=hover_fields,
             size="size" if size is not None else None,
-            color_continuous_scale=color_scale, title=title,
+            color_continuous_scale=color_scale,
+            title=title,
         )
     else:
         fig = px.scatter(
             df, x="dim1", y="dim2",
-            color=color_field, hover_data=hover_fields,
+            color=color_field if color_field else None,
+            hover_data=hover_fields,
             size="size" if size is not None else None,
-            color_continuous_scale=color_scale, title=title,
+            color_continuous_scale=color_scale,
+            title=title,
         )
 
-    fig.update_traces(marker=dict(opacity=0.8, line=dict(width=0)))
-    fig.update_layout(template="plotly_white")
-    return fig
+        fig.update_traces(marker=dict(opacity=0.8, line=dict(width=0)))
+        fig.update_layout(template="plotly_white")
+        return fig
 
 
 # Similarity Heatmap
@@ -277,12 +287,33 @@ def plot_class_balance_radar(labels):
     return fig
 
 def plot_embedding_correlation(embeddings, sensitive_attr):
-    """Correlation heatmap between embedding dims and sensitive attributes."""
+    """Correlation heatmap between embedding dims and sensitive attributes (handles categorical)."""
     emb_df = pd.DataFrame(embeddings)
-    emb_df["sensitive"] = sensitive_attr
-    corr = emb_df.corr()
-    fig = go.Figure(data=go.Heatmap(z=corr.values, x=corr.columns, y=corr.columns, colorscale="RdBu"))
-    fig.update_layout(title="Embedding–Sensitive Attribute Correlation Heatmap")
+    
+    # Convert categorical sensitive attributes into numeric codes safely
+    if not np.issubdtype(np.array(sensitive_attr).dtype, np.number):
+        sensitive_series = pd.Series(sensitive_attr, dtype="category").cat.codes
+    else:
+        sensitive_series = pd.Series(sensitive_attr)
+    
+    emb_df["sensitive"] = sensitive_series
+    
+    corr = emb_df.corr(numeric_only=True)
+    
+    fig = go.Figure(
+        data=go.Heatmap(
+            z=corr.values,
+            x=corr.columns,
+            y=corr.columns,
+            colorscale="RdBu",
+            zmin=-1,
+            zmax=1
+        )
+    )
+    fig.update_layout(
+        title="Embedding–Sensitive Attribute Correlation Heatmap (Encoded)",
+        template="plotly_white"
+    )
     return fig
 
 if __name__ == "__main__":

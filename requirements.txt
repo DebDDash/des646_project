@@ -7,9 +7,11 @@ numpy
 scikit-image
 tqdm
 tabulate
+
 # Visualization
 matplotlib
 plotly
+streamlit
 
 # Dimensionality reduction
 umap-learn
@@ -20,4 +22,5 @@ opencv-python
 # Indexing / similarity search (Choosing the Windows/CPU option)
 faiss-cpu
 
-
+# Embedding models
+open_clip_torch

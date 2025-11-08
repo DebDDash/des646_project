@@ -28,16 +28,34 @@ def compute_influence_scores(
     batch_size: int = 16,
     device: str = "cpu"
 ) -> np.ndarray:
+    import numpy as np
+    import torch
+    from torch.utils.data import DataLoader, TensorDataset
+    import torch.nn as nn
+
+    # Ensure embeddings are numeric
+    if not np.issubdtype(np.array(embeddings).dtype, np.number):
+        raise ValueError("Embeddings must be numeric")
+
+    # Encode string labels to integers if needed
+    if labels.dtype.kind not in {'i', 'u'}:  # not int or unsigned int
+        unique_labels, encoded_labels = np.unique(labels, return_inverse=True)
+        labels = encoded_labels
+
+    # Convert to tensors
     X = torch.tensor(embeddings, dtype=torch.float32).to(device)
     y = torch.tensor(labels, dtype=torch.long).to(device)
 
+    # Define model
     model = SmallClassifier(embeddings.shape[1], len(np.unique(labels))).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
+    # Data loader
     dataset = TensorDataset(X, y)
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
+    # Training loop
     for _ in range(epochs):
         for xb, yb in loader:
             optimizer.zero_grad()
@@ -45,6 +63,7 @@ def compute_influence_scores(
             loss.backward()
             optimizer.step()
 
+    # Compute influence scores
     influence_scores = []
     for i in range(len(X)):
         model.zero_grad()
@@ -62,8 +81,20 @@ def compute_influence_scores(
 # ---------------------------------------------------------------------
 def evaluate_fairness_metrics(y_true, y_pred, sensitive_attr):
     df = pd.DataFrame({"y_true": y_true, "y_pred": y_pred, "attr": sensitive_attr})
+
+    # Convert string labels to numeric codes if necessary
+    if df["y_true"].dtype == object:
+        df["y_true"] = df["y_true"].astype("category").cat.codes
+    if df["y_pred"].dtype == object:
+        df["y_pred"] = df["y_pred"].astype("category").cat.codes
+
+    # Ensure numeric dtypes
+    df["y_true"] = pd.to_numeric(df["y_true"], errors="coerce")
+    df["y_pred"] = pd.to_numeric(df["y_pred"], errors="coerce")
+
     groups = df.groupby("attr")
 
+    # Compute fairness metrics
     metrics = {}
     pos_rate = groups["y_pred"].mean()
     true_pos_rate = groups.apply(lambda g: np.mean((g["y_pred"] == 1) & (g["y_true"] == 1)))
@@ -72,7 +103,6 @@ def evaluate_fairness_metrics(y_true, y_pred, sensitive_attr):
     metrics["equalized_odds_diff"] = abs(true_pos_rate.max() - true_pos_rate.min())
 
     return metrics
-
 
 # ---------------------------------------------------------------------
 # Identify Bias-Conflicting Samples
