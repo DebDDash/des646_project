@@ -12,6 +12,7 @@ tabulate
 matplotlib
 plotly
 streamlit
+seaborn
 
 # Dimensionality reduction
 umap-learn
