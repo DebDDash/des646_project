@@ -7,6 +7,7 @@ numpy
 scikit-image
 tqdm
 tabulate
+seaborn
 
 # Visualization
 matplotlib
