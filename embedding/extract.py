@@ -55,14 +55,14 @@ class EmbeddingExtractor:
 
             if len(batch) == batch_size:
                 batch_tensor = torch.stack(batch).to(self.device)
-                feats = self.model(batch_tensor).squeeze()
+                feats = self.model(batch_tensor).view(len(batch), -1)
                 embeddings.append(feats.cpu().numpy())
                 ids.extend(current_ids)
                 batch, current_ids = [], []
 
         if batch:
             batch_tensor = torch.stack(batch).to(self.device)
-            feats = self.model(batch_tensor).squeeze()
+            feats = self.model(batch_tensor).view(len(batch), -1)
             embeddings.append(feats.cpu().numpy())
             ids.extend(current_ids)
 
@@ -74,5 +74,3 @@ class EmbeddingExtractor:
         np.save(os.path.join(output_dir, f"embeddings_{self.backbone_name}.npy"), embeddings)
         with open(os.path.join(output_dir, "image_ids.txt"), "w") as f:
             f.write("\n".join(ids))
-
-
