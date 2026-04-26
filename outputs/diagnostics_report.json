@@ -1,0 +1,23 @@
+{
+  "metrics": {
+    "class_distribution": {
+      "None": 3925,
+      "n02979186": 993,
+      "n01440764": 963,
+      "n03417042": 961,
+      "n03888257": 960,
+      "n03394916": 956,
+      "n02102040": 955,
+      "n03445777": 951,
+      "n03028079": 941,
+      "n03425413": 931,
+      "n03000684": 858
+    },
+    "high_influence_count": 491,
+    "fairness": {
+      "demographic_parity_diff": NaN,
+      "equalized_odds_diff": 0.0
+    },
+    "duplicate_clusters": 9
+  }
+}
