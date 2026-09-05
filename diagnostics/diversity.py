@@ -22,7 +22,7 @@ import os
 
 
 # -----------------------------
-# 1️⃣ Intra-Class Diversity
+# Intra-Class Diversity
 # -----------------------------
 def compute_intra_class_diversity(embeddings, labels):
     """
@@ -58,7 +58,7 @@ def compute_intra_class_diversity(embeddings, labels):
 
 
 # -----------------------------
-# 2️⃣ Inter-Class Overlap
+#  Inter-Class Overlap
 # -----------------------------
 def frechet_distance(mu1, sigma1, mu2, sigma2):
     """Compute Fréchet distance between two multivariate Gaussians."""
@@ -103,7 +103,7 @@ def compute_inter_class_overlap(embeddings, labels):
 
 
 # -----------------------------
-# 3️⃣ Combined Diversity Index
+#  Combined Diversity Index
 # -----------------------------
 def compute_diversity_index(embeddings, labels):
     intra = compute_intra_class_diversity(embeddings, labels)
@@ -121,7 +121,7 @@ def compute_diversity_index(embeddings, labels):
 
 
 # -----------------------------
-# 4️⃣ Visualization
+#  Visualization
 # -----------------------------
 def plot_diversity_heatmap(overlap_df, cmap="viridis"):
     plt.figure(figsize=(6, 5))
